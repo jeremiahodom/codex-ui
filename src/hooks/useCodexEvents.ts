@@ -1,12 +1,12 @@
 import { useEffect, useRef, useCallback } from 'react';
-import { listen } from '@tauri-apps/api/event';
 import { CodexEvent, ApprovalRequest } from '@/types/codex';
 import { useConversationStore } from '../stores/ConversationStore';
 import { StreamController, StreamControllerSink } from '@/utils/streamController';
 import { generateUniqueId } from '@/utils/genUniqueId';
 import { ChatMessage } from '@/types/chat';
-import { invoke } from '@tauri-apps/api/core';
 import { useEphemeralStore } from '@/stores/EphemeralStore';
+import { listen } from '@/services/sseClient';
+import { invoke } from '@/services/apiClient';
 
 interface UseCodexEventsProps {
   sessionId: string;

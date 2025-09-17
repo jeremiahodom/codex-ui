@@ -12,6 +12,14 @@ dist
 dist-ssr
 *.local
 
+# Backend build artifacts
+backend/dist
+backend/node_modules
+
+# Tauri build artifacts (no longer used)
+src-tauri/target
+src-tauri/Cargo.lock
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

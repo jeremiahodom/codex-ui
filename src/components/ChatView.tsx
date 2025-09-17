@@ -6,7 +6,7 @@ import type { Conversation } from "@/types/chat";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { invoke } from "@tauri-apps/api/core";
+import { invoke } from "@/services/apiClient";
 import { useFolderStore } from "@/stores/FolderStore";
 
 interface ChatViewProps {

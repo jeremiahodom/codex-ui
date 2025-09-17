@@ -1,5 +1,5 @@
-import { invoke } from '@tauri-apps/api/core';
 import { ModelProvider, Profile, ProviderConfig } from '@/types/config';
+import { invoke } from '@/services/apiClient';
 
 export class ConfigService {
   static async getProviderConfig(providerName: string): Promise<ProviderConfig | null> {
