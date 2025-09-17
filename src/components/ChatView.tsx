@@ -23,7 +23,6 @@ export const ChatView: React.FC<ChatViewProps> = ({ selectedConversation, showCh
     setSelectedCategory,
     deleteConversation,
     addCategory,
-    deleteCategory,
     setConversationCategory,
   } = useConversationStore();
 
@@ -57,10 +56,8 @@ export const ChatView: React.FC<ChatViewProps> = ({ selectedConversation, showCh
     }
   };
 
-  const handleDeleteCategory = (categoryId: string) => {
-    if (confirm("Are you sure you want to delete this category? Conversations will be moved to 'All'.")) {
-      deleteCategory(categoryId);
-    }
+  const handleSelectConversation = (conversation: Conversation) => {
+    setCurrentConversation(conversation.id);
   };
 
   return (
@@ -104,7 +101,7 @@ export const ChatView: React.FC<ChatViewProps> = ({ selectedConversation, showCh
             <ConversationTabs
               conversations={conversations}
               activeConversationId={currentConversationId}
-              onSelectConversation={setCurrentConversation}
+              onSelectConversation={handleSelectConversation}
               onCreateConversation={createNewConversation}
               onDeleteConversation={deleteConversation}
               onSetCategory={setConversationCategory}

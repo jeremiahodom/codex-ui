@@ -1,216 +1,136 @@
-import {
-  PartyPopper,
-  Usb,
-  PanelLeft,
-  Settings,
-  BarChart3,
-  Sun,
-  Moon,
-  Brain,
-  Palette,
-} from "lucide-react";
+// Simplified AppHeader without Tauri dependencies
+import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { 
+  Menu, 
+  Settings, 
+  Sun, 
+  Moon,
+  MessageSquare,
+  Palette
+} from "lucide-react";
 import { useLayoutStore } from "@/stores/layoutStore";
-import { useState, useEffect } from "react";
 import { useThemeStore, type Accent } from "@/stores/ThemeStore";
 import { useSettingsStore } from "@/stores/SettingsStore";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuLabel,
-  DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import supabase from "@/lib/supabase";
 
 export function AppHeader() {
-  const { showFileTree, toggleFileTree, toggleChatPane } = useLayoutStore();
+  const { toggleFileTree } = useLayoutStore();
   const { theme, toggleTheme, accent, setAccent } = useThemeStore();
-  const { logoSettings } = useSettingsStore();
-  const [codexVersion, setCodexVersion] = useState<string>("");
-  const [isCodexAvailable, setIsCodexAvailable] = useState<boolean>(false);
+  const { logoSettings, windowTitle } = useSettingsStore();
   const location = useLocation();
   const navigate = useNavigate();
-  const { user } = useAuth();
 
-  const handleLogout = async () => {
-    try {
-      if (supabase) {
-        await supabase.auth.signOut();
-      }
-    } catch (e) {
-      console.error("Error signing out:", e);
-    } finally {
-      navigate("/login", { replace: true });
-    }
-  };
+  const isActive = (path: string) => location.pathname === path;
 
-  useEffect(() => {
-    const checkVersion = async () => {
-      try {
-        const version = await invoke<string>("check_codex_version");
-        setCodexVersion(version);
-        setIsCodexAvailable(true);
-      } catch (error) {
-        setCodexVersion("Not available");
-        setIsCodexAvailable(false);
-      }
-    };
-
-    checkVersion();
-  }, []);
+  const accents: { value: Accent; label: string; color: string }[] = [
+    { value: "blue", label: "Blue", color: "bg-blue-500" },
+    { value: "green", label: "Green", color: "bg-green-500" },
+    { value: "purple", label: "Purple", color: "bg-purple-500" },
+    { value: "orange", label: "Orange", color: "bg-orange-500" },
+    { value: "pink", label: "Pink", color: "bg-pink-500" },
+  ];
 
   return (
-    <div data-tauri-drag-region className="flex justify-between px-2">
-      <span className="flex gap-2 items-center">
-        <Link to="/chat" className="flex hover:text-primary items-center gap-1">
-          {logoSettings.useCustomLogo && logoSettings.customLogoPath ? (
+    <div className="bg-muted border-b px-4 py-2 flex items-center justify-between">
+      <div className="flex items-center gap-3">
+        {/* Menu Button */}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={toggleFileTree}
+          className="text-muted-foreground"
+        >
+          <Menu size={16} />
+        </Button>
+
+        {/* Logo and Title */}
+        <div className="flex items-center gap-2">
+          {logoSettings?.useCustomLogo && logoSettings?.customLogoPath && (
             <img
               src={logoSettings.customLogoPath}
-              alt="Custom Logo"
-              className="h-6 w-auto object-contain"
+              alt="Logo"
+              className="w-6 h-6 object-contain"
             />
-          ) : (
-            <span className="flex gap-2 items-center">
-              <div
-                className={`w-2 h-2 rounded-full ${isCodexAvailable ? "bg-green-500" : "bg-destructive"}`}
-              ></div>
-              <Badge>{codexVersion}</Badge>
-            </span>
           )}
-          Chat
-        </Link>
+          <span className="font-semibold text-sm">{windowTitle}</span>
+        </div>
 
-        {/* Welcome button to projects page */}
-        <Link to="/" className="flex hover:text-primary items-center gap-1">
-          <PartyPopper className="w-5 h-5" /> Projects
-        </Link>
-
-        {location.pathname === "/chat" && (
+        {/* Navigation */}
+        <div className="flex items-center gap-1">
           <Button
-            variant="ghost"
-            size="icon"
-            onClick={toggleFileTree}
-            className={`h-6 w-6 ${showFileTree ? "bg-primary/20" : ""}`}
+            variant={isActive("/") || isActive("/chat") ? "secondary" : "ghost"}
+            size="sm"
+            onClick={() => navigate("/chat")}
+            className="gap-1"
           >
-            <PanelLeft className="w-3 h-3" />
+            <MessageSquare size={14} />
+            Chat
           </Button>
-        )}
-      </span>
 
-      <span className="flex gap-0 h-6">
-        {location.pathname === "/chat" && (
-          <McpDialog>
-            <Button variant="ghost" className="flex gap-1 h-6">
-              <Usb />
-              MCP
-            </Button>
-          </McpDialog>
-        )}
+          <Button
+            variant={isActive("/settings") ? "secondary" : "ghost"}
+            size="sm"
+            onClick={() => navigate("/settings")}
+            className="gap-1"
+          >
+            <Settings size={14} />
+            Settings
+          </Button>
+        </div>
+      </div>
 
-        <Link
-          to="/usage"
-          className="flex hover:text-primary items-center gap-1"
+      <div className="flex items-center gap-2">
+        {/* Theme Toggle */}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={toggleTheme}
+          className="text-muted-foreground"
         >
-          <BarChart3 className="w-4 h-4" /> Usage
-        </Link>
-
-        <Button variant="ghost" onClick={toggleChatPane} className="h-6 w-6">
-          <Brain />
+          {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
         </Button>
 
-        <Button variant="ghost" className="h-6 w-6" onClick={toggleTheme}>
-          {theme === "dark" ? <Sun /> : <Moon />}
-        </Button>
-
-        {/* Accent color selector */}
+        {/* Accent Color Selector */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-6 w-6">
-              <Palette />
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-muted-foreground"
+            >
+              <Palette size={16} />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
+          <DropdownMenuContent>
             <DropdownMenuLabel>Accent Color</DropdownMenuLabel>
-            <DropdownMenuRadioGroup value={accent} onValueChange={(val) => setAccent(val as Accent)}>
-              <DropdownMenuRadioItem value="pink">
-                <span className="inline-flex items-center gap-2">
-                  <span className="inline-block size-3 rounded-full bg-pink-500" /> Pink
-                </span>
-              </DropdownMenuRadioItem>
-              <DropdownMenuRadioItem value="blue">
-                <span className="inline-flex items-center gap-2">
-                  <span className="inline-block size-3 rounded-full bg-blue-500" /> Blue
-                </span>
-              </DropdownMenuRadioItem>
-              <DropdownMenuRadioItem value="green">
-                <span className="inline-flex items-center gap-2">
-                  <span className="inline-block size-3 rounded-full bg-emerald-500" /> Green
-                </span>
-              </DropdownMenuRadioItem>
-              <DropdownMenuRadioItem value="purple">
-                <span className="inline-flex items-center gap-2">
-                  <span className="inline-block size-3 rounded-full bg-purple-500" /> Purple
-                </span>
-              </DropdownMenuRadioItem>
-              <DropdownMenuRadioItem value="orange">
-                <span className="inline-flex items-center gap-2">
-                  <span className="inline-block size-3 rounded-full bg-orange-500" /> Orange
-                </span>
-              </DropdownMenuRadioItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuRadioGroup 
+              value={accent} 
+              onValueChange={(value) => setAccent(value as Accent)}
+            >
+              {accents.map((color) => (
+                <DropdownMenuRadioItem
+                  key={color.value}
+                  value={color.value}
+                  className="flex items-center gap-2"
+                >
+                  <div className={`w-3 h-3 rounded-full ${color.color}`} />
+                  {color.label}
+                </DropdownMenuRadioItem>
+              ))}
             </DropdownMenuRadioGroup>
           </DropdownMenuContent>
         </DropdownMenu>
-
-        <Link
-          to="/settings"
-          className="flex hover:text-primary items-center gap-1"
-        >
-          <Settings className="w-4 h-4" />
-          Settings
-        </Link>
-
-        {(import.meta.env.VITE_ENABLE_AUTH === 'true') && (
-          <>
-            {user ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="h-6 w-6 p-0 rounded-full">
-                    {user.user_metadata?.avatar_url ? (
-                      <img
-                        src={user.user_metadata.avatar_url}
-                        className="rounded-full w-6 h-6"
-                        alt="User avatar"
-                      />
-                    ) : (
-                      <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-muted text-xs">
-                        {user.email?.charAt(0)?.toUpperCase() ?? "U"}
-                      </span>
-                    )}
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>Account</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleLogout}>Sign out</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
-              <Link
-                to="/login"
-                className="flex hover:text-primary items-center gap-1 px-2"
-              >
-                login
-              </Link>
-            )}
-          </>
-        )}
-      </span>
+      </div>
     </div>
   );
 }

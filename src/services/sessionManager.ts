@@ -14,18 +14,14 @@ class SessionManager {
     try {
       console.log(`🚀 Starting session: ${sessionId}`);
 
-      // Get or create session via API
-      try {
-        await sessionService.getSession(sessionId);
-      } catch (error) {
-        // Session doesn't exist, create it
-        await sessionService.createSession(`Session ${new Date().toLocaleString()}`);
-      }
-
-      this.runningSessions.add(sessionId);
-      this.sessionConfigs.set(sessionId, config);
+      // Create session via API  
+      const session = await sessionService.createSession(`Session ${new Date().toLocaleString()}`);
       
-      console.log(`✅ Session ${sessionId} is now running`);
+      this.runningSessions.add(session.id);
+      this.sessionConfigs.set(session.id, config);
+      
+      console.log(`✅ Session ${session.id} is now running`);
+      return session.id;
     } catch (error) {
       console.error('Failed to start session:', error);
       throw error;

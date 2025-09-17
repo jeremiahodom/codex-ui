@@ -1,100 +1,65 @@
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ConversationList } from "./ConversationList";
-import { SearchInput } from "@/components/common/SearchInput";
-import { useLayoutStore } from "@/stores/layoutStore";
+// Simple ConversationTabs component for the new interface
+import React from 'react';
 import type { Conversation } from "@/types/chat";
-import React, { useMemo } from "react";
+import { Button } from '@/components/ui/button';
+import { Plus, X } from 'lucide-react';
 
-interface ChatTabsProps {
-  favoriteStatuses: Record<string, boolean>;
-  activeConversations: Conversation[];
-  currentConversationId: string | null;
-  activeSessionId?: string;
-  searchQuery: string;
-  onSearchChange: (query: string) => void;
+interface ConversationTabsProps {
+  conversations: Conversation[];
+  activeConversationId: string | null;
   onSelectConversation: (conversation: Conversation) => void;
-  onToggleFavorite: (conversationId: string, e: React.MouseEvent) => void;
-  onDeleteConversation: (conversationId: string, e: React.MouseEvent) => void;
-  onSelectSession?: (sessionId: string) => void;
+  onCreateConversation: () => void;
+  onDeleteConversation: (id: string) => void;
+  onSetCategory: (conversationId: string, categoryId: string | null) => void;
+  categories: { id: string; name: string }[];
 }
 
-export function ConversationTabs({
-  favoriteStatuses,
-  activeConversations,
-  currentConversationId,
-  activeSessionId,
-  searchQuery,
-  onSearchChange,
+export const ConversationTabs: React.FC<ConversationTabsProps> = ({
+  conversations,
+  activeConversationId,
   onSelectConversation,
-  onToggleFavorite,
+  onCreateConversation,
   onDeleteConversation,
-  onSelectSession,
-}: ChatTabsProps) {
-  const { conversationListTab, setConversationListTab } = useLayoutStore();
-
-  const getFilteredConversations = (tab: string, searchQuery: string) => {
-    let conversations: Conversation[] = [];
-
-    if (tab === "favorites") {
-      conversations = activeConversations.filter(
-        (c) => favoriteStatuses[c.id],
-      );
-    } else if (tab === "sessions") {
-      conversations = activeConversations.filter(conv => 
-        conv.id.startsWith('codex-event-') && 
-        /\d{13}-[a-z0-9]+$/.test(conv.id.replace('codex-event-', ''))
-      );
-    } else {
-      conversations = activeConversations;
-    }
-
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
-      conversations = conversations.filter(
-        (conversation) =>
-          conversation.title.toLowerCase().includes(query) ||
-          conversation.messages.some((msg) =>
-            msg.content.toLowerCase().includes(query),
-          ),
-      );
-    }
-
-    return conversations;
-  };
-
-  const filteredConversations = useMemo(() => {
-    return getFilteredConversations(conversationListTab, searchQuery);
-  }, [conversationListTab, searchQuery, activeConversations, favoriteStatuses]);
-
+}) => {
   return (
-    <Tabs
-      value={conversationListTab}
-      onValueChange={setConversationListTab}
-      className="flex flex-col h-full"
-    >
-      <TabsList className="grid w-full grid-cols-2 flex-shrink-0">
-        <TabsTrigger value="sessions">Sessions</TabsTrigger>
-        <TabsTrigger value="favorites">Favorites</TabsTrigger>
-      </TabsList>
-
-      <div className="flex-1 overflow-y-auto mt-0">
-        <SearchInput
-          placeholder="Search conversations..."
-          value={searchQuery}
-          onChange={onSearchChange}
-        />
-        <ConversationList
-          conversations={filteredConversations}
-          currentConversationId={currentConversationId}
-          activeSessionId={activeSessionId}
-          favoriteStatuses={favoriteStatuses}
-          isFav={conversationListTab === "favorites"}
-          onSelectConversation={onSelectConversation}
-          onToggleFavorite={onToggleFavorite}
-          onDeleteConversation={onDeleteConversation}
-          onSelectSession={conversationListTab === "sessions" ? onSelectSession : undefined}
-        />
+    <div className="border-b bg-background">
+      <div className="flex items-center gap-1 p-2 overflow-x-auto">
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={onCreateConversation}
+          className="flex-shrink-0"
+        >
+          <Plus size={16} />
+        </Button>
+        
+        {conversations.map((conversation) => (
+          <div
+            key={conversation.id}
+            className={`flex items-center gap-1 px-3 py-1 rounded-md cursor-pointer flex-shrink-0 ${
+              conversation.id === activeConversationId
+                ? 'bg-primary text-primary-foreground'
+                : 'hover:bg-muted'
+            }`}
+            onClick={() => onSelectConversation(conversation)}
+          >
+            <span className="text-sm truncate max-w-[150px]">
+              {conversation.title}
+            </span>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-4 w-4 p-0 hover:bg-destructive hover:text-destructive-foreground"
+              onClick={(e) => {
+                e.stopPropagation();
+                onDeleteConversation(conversation.id);
+              }}
+            >
+              <X size={12} />
+            </Button>
+          </div>
+        ))}
       </div>
-    </Tabs>
+    </div>
   );
-}
+};

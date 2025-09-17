@@ -1,156 +1,111 @@
-<div align="center">
-  <img src="src-tauri/icons/128x128@2x.png" alt="Codexia Logo" width="120" height="120" />
+# Codex UI - Node.js Backend Version
 
-  # [Codexia](https://github.com/milisp/codexia)
-</div>
+A modern chat interface powered by Node.js backend with real-time streaming support via Server-Sent Events (SSE).
 
-[![Downloads](https://img.shields.io/github/downloads/milisp/codexia/total.svg)](https://github.com/milisp/codexia/releases)
-[![Stars](https://img.shields.io/github/stars/milisp/codexia?style=social)](https://github.com/milisp/codexia/stargazers)
-[![Forks](https://img.shields.io/github/forks/milisp/codexia?style=social)](https://github.com/milisp/codexia/network/members)
-[![Issues](https://img.shields.io/github/issues/milisp/codexia)](https://github.com/milisp/codexia/issues)
-[![Feature Requests](https://img.shields.io/github/issues/milisp/codexia/feature-request?label=feature%20requests)](https://github.com/milisp/codexia/labels/feature-request)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](#-contributing)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![CI](https://github.com/milisp/codexia/actions/workflows/ci.yml/badge.svg)](https://github.com/milisp/codexia/actions/workflows/ci.yml)
+> **Note**: This project has been converted from a Tauri-based desktop application to a web-based application with Node.js backend, removing file tree, PDF/Excel viewers, and authentication features while keeping session and chat functionality.
 
-🚀 A powerful GUI and Toolkit for [Codex CLI](https://github.com/openai/codex)
+## Architecture
 
-fork chat, file-tree integration, notepad, git diff, build-in pdf csv/xlsx viewer, and more.
+- **Frontend**: React + TypeScript + Vite
+- **Backend**: Node.js + Express + TypeScript  
+- **Communication**: REST API + Server-Sent Events (SSE)
+- **Features**: Session management, real-time chat streaming, notes
 
-[USAGE](docs/USAGE.md) | [CONTRIBUTING](CONTRIBUTING.md) | [ARCHITECTURE](docs/ARCHITECTURE.md)
+## Quick Start
 
-> [!TIP]
-> **⭐ Star the repo and follow milisp on [x|Twitter](https://x.com/lisp_mi) and [github](https://github.com/milisp) for more**.
+### Prerequisites
 
-<div style="display: flex; gap: 10px; justify-content: center;">
-  <div style="text-align: center;">
-    <img src="public/codexia-reason.png" alt="reason" width="300">
-    <p>Reason</p>
-  </div>
-  <div style="text-align: center;">
-    <img src="public/codexia-web-search.png" alt="web-search" width="300">
-    <p>Web Search</p>
-  </div>
-</div>
+- Node.js 18+
+- npm or yarn
 
-▶️ [Watch the automation video on Twitter](https://x.com/lisp_mi/status/1966147638266589376)
+### Installation & Development
 
-## News
+1. **Clone and install dependencies**
+   ```bash
+   git clone <repository-url>
+   cd codex-ui
+   npm install
+   cd backend && npm install && cd ..
+   ```
 
-- [2025-09-11] support codex built-in web search + file and filetree change detect and refresh
-- [2025-09-05] fork chat + edit chat
-  * (theme select + category conversatin) ideas thanks to reddit user [rachelo3](https://racheluidesign.weebly.com/)
-- [2025-09-03] show the plan message
-- [2025-08-29] support image input, codexia can read image now
+2. **Start the backend server**
+   ```bash
+   cd backend && npm run dev
+   ```
+   Backend runs on `http://localhost:3001`
 
-## ✨ Features
+3. **Start the frontend** (new terminal)
+   ```bash
+   npm run dev  
+   ```
+   Frontend runs on `http://localhost:1420`
 
-### 🔄 **Multi-Session Support**
-- Multiple independent chat sessions
-- Auto-restore sessions on restart
+## Features
 
-### 💬 **Real-Time Streaming**
+### ✅ Implemented
+- **Real-time Chat**: Send messages and receive streaming responses
+- **Session Management**: Create and manage multiple chat sessions
+- **SSE Streaming**: Server-Sent Events for real-time communication
+- **Notes System**: Basic note-taking functionality
+- **Dark/Light Theme**: Theme switching support
+- **Responsive UI**: Works on different screen sizes
 
-### Build-in Mutil file format support
+### ❌ Removed (as requested)
+- File tree navigation
+- PDF viewer
+- Excel viewer
+- Authentication/login system
+- Tauri desktop functionality
 
-- PDF text selection
-- CSV/XLSX preview & selection
+## API Endpoints
 
-### ⚙️ **Flexible Configuration**
-- Multiple AI providers (OpenAI, Ollama, Custom)
-- Per-session model configs
-- Adjustable sandbox policies
-- Custom approval workflows
-- Select working directory
+- `GET /api/sessions` - Get all sessions
+- `POST /api/sessions` - Create new session
+- `GET /api/sessions/:id` - Get specific session
+- `POST /api/chat/message` - Send message (non-streaming)
+- `GET /api/chat/stream/:sessionId` - SSE endpoint for streaming chat
+- `GET /api/health` - Backend health check
 
-### 🎯 **Professional UX**
-- Responsive UI with shadcn/ui
-- Config panel
-- Notepad-chat integration
-- Syntax-highlighted markdown
-- Todo plan display
-- Screenshot as input
-- Fork chat
-- Persistent UI state
-- Auto WebPreview (e.g., Next.js http://localhost:3000)
-- Theme & Accent selection
+## Screenshots
 
-### 🛡️ **Security & Control**
+### Main Interface
+![Codex UI Main Interface](https://github.com/user-attachments/assets/1f6c322f-c006-4541-9c8d-9a768449687d)
 
-Codexia prioritizes your privacy and security:
+### Working Chat with Streaming
+![Working Chat Integration](https://github.com/user-attachments/assets/deaa6afd-ff36-4f73-9421-86f3ca4893e8)
 
-#### Codex CLI features
-- Sandbox execution modes for safe code running
-- Approval workflows for sensitive operations
-- Configurable command execution policies
-- Isolated processes per session for security
+## Project Structure
 
-#### Privacy
-- **Local Storage**: All data stays on your machine
-- **No Telemetry**: No data collection or tracking
-- **Open Source**: Full transparency through open source code
+```
+codex-ui/
+├── backend/                 # Node.js backend
+│   ├── src/
+│   │   ├── routes/         # API routes
+│   │   ├── services/       # Business logic
+│   │   └── index.ts        # Server entry point
+│   └── package.json
+├── src/                    # React frontend
+│   ├── components/         # React components
+│   ├── services/          # API client services
+│   └── stores/            # State management
+└── package.json
+```
 
-## Documentation
+## Development Notes
 
-- Usage and setup: [USAGE](docs/USAGE.md)
-- Architecture overview: [ARCHITECTURE](docs/ARCHITECTURE.md)
-- Development and contributing: [CONTRIBUTING](CONTRIBUTING.md)
+- Session data is stored in memory (resets on server restart)
+- Backend provides mock AI responses for demonstration
+- CORS configured for frontend-backend communication
+- Uses Zustand for state management on frontend
 
-## 📋 Supported Codex Features
+## Building for Production
 
-- ✅ Interactive chat
-- ✅ Code generation/editing
-- ✅ File operations with sandbox
-- ✅ Command execution with approval
-- ✅ Multiple AI providers
-- ✅ Project-aware assistance
-- ✅ Streaming responses
-- ✅ Built-in Web Search
+```bash
+npm run build              # Build frontend
+cd backend && npm run build  # Build backend
+cd backend && npm start      # Start production server
+```
 
-## 🛣️ Roadmap
-
-- MCP tool call
-- More file format support
-- Better UI customization
-- Plugin system
-- Advanced debugging tools
-- Real-time collaboration
-- Performance optimizations
-
-🚀 **Call to Action**
-
-If you’re a developer, designer, or AI tinkerer — Join us on this exciting journey to redefine the developer experience with AI. Contribute to the project, share your feedback, and help build the future of intelligent coding environments. Together, we can make Codexia the go-to platform for developers worldwide!
-
-## Development & Support Docs
-
-For development commands, troubleshooting/FAQ, and contribution guidance, see [CONTRIBUTING](CONTRIBUTING.md) and [USAGE](docs/USAGE.md).
-
-## 💖 Contributors
-
-Thanks to all our wonderful contributors!
-
-<a href="https://github.com/milisp/codexia/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=milisp/codexia" />
-</a>
-
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Disclaimer
-
-Codexia is an independent open-source project and is not built by OpenAI or any company.
-
-## 🙏 Acknowledgments
-
-- [Plux](https://github.com/milisp/plux) one click @files from FileTree & notepad
-- [Claude code](https://www.anthropic.com/claude-code) Co-Authored-By Claude code
-- [codex](https://chatgpt.com/codex) for the Codex CLI
-- [Tauri](https://tauri.app/) for the excellent desktop app framework
-- [shadcn/ui](https://ui.shadcn.com/) for the beautiful UI components
-- [ChatGPT](https://chatgpt.com) Some code suggest by ChatGPT
-- The open source community for the amazing tools and libraries
-
----
-
-**Built with ❤️ using Tauri, React, and Rust**

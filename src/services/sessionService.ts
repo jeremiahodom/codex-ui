@@ -44,7 +44,6 @@ class SessionService {
       createdAt: session.createdAt,
       updatedAt: session.updatedAt,
       isLoading: false,
-      projectPath: '', // Not used in new backend
       resumePath: undefined, // Not used in new backend
     };
   }
