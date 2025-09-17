@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { invoke } from "@tauri-apps/api/core";
 import {
   Card,
   CardContent,
@@ -12,7 +11,6 @@ import { FolderOpen, Plus } from "lucide-react";
 import { useFolderStore } from "@/stores/FolderStore";
 import { Button } from "@/components/ui/button";
 import { useLayoutStore } from "@/stores/layoutStore";
-import { open } from "@tauri-apps/plugin-dialog";
 import {
   Dialog,
   DialogContent,
@@ -21,6 +19,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { invoke } from "@/services/apiClient";
+
+// Mock dialog open function for development
+const open = async (options: { directory: boolean; multiple: boolean }) => {
+  // In a real implementation, this would use a file picker
+  // For development, we'll just return a sample path
+  return "/home/user/sample-project";
+};
 
 interface Project {
   path: string;

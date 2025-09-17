@@ -1,8 +1,8 @@
-import { invoke } from '@tauri-apps/api/core';
 import { CodexConfig } from '@/types/codex';
 import { useFolderStore } from '@/stores/FolderStore';
 import { useProvidersStore } from '@/stores/ProvidersStore';
 import { useConversationStore } from '@/stores/ConversationStore';
+import { invoke } from '@/services/apiClient';
 
 class SessionManager {
   private sessionConfigs: Map<string, CodexConfig> = new Map();

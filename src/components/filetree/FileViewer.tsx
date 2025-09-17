@@ -1,6 +1,4 @@
 import { useState, useEffect, useRef } from "react";
-import { invoke } from "@tauri-apps/api/core";
-import { listen, UnlistenFn } from "@tauri-apps/api/event";
 import { Button } from "@/components/ui/button";
 import { X, Copy, Check, Send, FileText, GitBranch, Code } from "lucide-react";
 import { CodeEditor } from "./CodeEditor";
@@ -9,6 +7,10 @@ import { useThemeStore } from "@/stores/ThemeStore";
 import { useConversationStore } from "@/stores/ConversationStore";
 import { useLayoutStore } from "@/stores/layoutStore";
 import { useChatInputStore } from "@/stores/chatInputStore";
+import { invoke } from "@/services/apiClient";
+import { listen } from "@/services/sseClient";
+
+type UnlistenFn = () => void;
 
 interface FileViewerProps {
   filePath: string | null;
