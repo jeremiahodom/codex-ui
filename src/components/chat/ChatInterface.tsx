@@ -1,21 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { invoke } from "@tauri-apps/api/core";
-import { ApprovalRequest } from "@/types/codex";
 import type { Conversation } from "@/types/chat";
 import { useConversationStore } from "@/stores/ConversationStore";
 import { useCodexStore } from "@/stores/CodexStore";
 import { useChatInputStore } from "@/stores/chatInputStore";
 import { useModelStore } from "@/stores/ModelStore";
 import { sessionManager } from "@/services/sessionManager";
+import { chatService } from "@/services/chatService";
 import { ChatInput } from "./ChatInput";
 import { MessageList } from "./MessageList";
-import { useCodexEvents } from "../../hooks/useCodexEvents";
 import { ReasoningEffortSelector } from './ReasoningEffortSelector';
-import { Sandbox } from "./Sandbox";
 import { generateUniqueId } from "@/utils/genUniqueId";
-import { ForkOriginBanner } from './ForkOriginBanner';
-import { useEphemeralStore } from '@/stores/EphemeralStore';
-import { ChangesSummary } from './ChangesSummary';
 import { ModelSelector } from "./ModelSelector";
 
 interface ChatInterfaceProps {

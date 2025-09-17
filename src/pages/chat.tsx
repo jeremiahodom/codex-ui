@@ -1,7 +1,6 @@
 import { ChatView } from "@/components/ChatView";
 import { NotesView } from "@/components/NotesView";
 import { useLayoutStore } from "@/stores/layoutStore";
-import { useNoteStore } from "@/stores/NoteStore";
 import { useState } from "react";
 import { ConfigDialog } from "@/components/dialogs/ConfigDialog";
 import { AppToolbar } from "@/components/layout/AppToolbar";

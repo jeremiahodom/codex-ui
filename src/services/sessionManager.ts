@@ -15,12 +15,11 @@ class SessionManager {
       console.log(`🚀 Starting session: ${sessionId}`);
 
       // Get or create session via API
-      let session;
       try {
-        session = await sessionService.getSession(sessionId);
+        await sessionService.getSession(sessionId);
       } catch (error) {
         // Session doesn't exist, create it
-        session = await sessionService.createSession(`Session ${new Date().toLocaleString()}`);
+        await sessionService.createSession(`Session ${new Date().toLocaleString()}`);
       }
 
       this.runningSessions.add(sessionId);

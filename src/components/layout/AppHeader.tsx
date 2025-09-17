@@ -13,12 +13,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useLayoutStore } from "@/stores/layoutStore";
-import { invoke } from "@tauri-apps/api/core";
 import { useState, useEffect } from "react";
-import { McpDialog } from "../dialogs/McpDialog";
 import { useThemeStore, type Accent } from "@/stores/ThemeStore";
 import { useSettingsStore } from "@/stores/SettingsStore";
-import { useAuth } from "@/hooks/useAuth";
 import {
   DropdownMenu,
   DropdownMenuContent,

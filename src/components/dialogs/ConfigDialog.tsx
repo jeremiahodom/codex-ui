@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { open } from '@tauri-apps/plugin-dialog';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Settings, FileText } from 'lucide-react';

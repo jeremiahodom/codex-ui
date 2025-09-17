@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Codex UI - Node.js Backend</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .chat-container { border: 1px solid #ccc; height: 400px; overflow-y: auto; padding: 10px; margin: 10px 0; }
+        .message { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .user { background: #e3f2fd; }
+        .assistant { background: #f3e5f5; }
+        .input-area { display: flex; gap: 10px; }
+        .input-area input { flex: 1; padding: 10px; }
+        .input-area button { padding: 10px 20px; }
+        .sessions { margin: 20px 0; }
+        .session-item { padding: 10px; border: 1px solid #ddd; margin: 5px 0; cursor: pointer; }
+        .session-item:hover { background: #f5f5f5; }
+        .session-item.active { background: #e3f2fd; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Codex UI - Node.js Backend Demo</h1>
+        
+        <div class="sessions">
+            <h3>Sessions</h3>
+            <button onclick="createNewSession()">+ New Session</button>
+            <div id="sessionsList"></div>
+        </div>
+
+        <div class="chat-container" id="chatContainer">
+            <!-- Messages will appear here -->
+        </div>
+
+        <div class="input-area">
+            <input type="text" id="messageInput" placeholder="Type your message..." onkeypress="handleKeyPress(event)">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        let currentSessionId = null;
+        let eventSource = null;
+
+        async function loadSessions() {
+            try {
+                const response = await fetch('http://localhost:3001/api/sessions');
+                const sessions = await response.json();
+                const sessionsList = document.getElementById('sessionsList');
+                
+                sessionsList.innerHTML = sessions.map(session => 
+                    `<div class="session-item ${session.id === currentSessionId ? 'active' : ''}" 
+                          onclick="selectSession('${session.id}')">
+                        ${session.title} (${session.messages.length} messages)
+                    </div>`
+                ).join('');
+            } catch (error) {
+                console.error('Failed to load sessions:', error);
+            }
+        }
+
+        async function createNewSession() {
+            try {
+                const response = await fetch('http://localhost:3001/api/sessions', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title: `Session ${new Date().toLocaleTimeString()}` })
+                });
+                const session = await response.json();
+                currentSessionId = session.id;
+                await loadSessions();
+                displayMessages([]);
+            } catch (error) {
+                console.error('Failed to create session:', error);
+            }
+        }
+
+        async function selectSession(sessionId) {
+            currentSessionId = sessionId;
+            try {
+                const response = await fetch(`http://localhost:3001/api/sessions/${sessionId}`);
+                const session = await response.json();
+                displayMessages(session.messages);
+                await loadSessions(); // Refresh to show active state
+            } catch (error) {
+                console.error('Failed to load session:', error);
+            }
+        }
+
+        function displayMessages(messages) {
+            const chatContainer = document.getElementById('chatContainer');
+            chatContainer.innerHTML = messages.map(msg => 
+                `<div class="message ${msg.role}">
+                    <strong>${msg.role}:</strong> ${msg.content}
+                </div>`
+            ).join('');
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (!message || !currentSessionId) {
+                if (!currentSessionId) {
+                    alert('Please create or select a session first');
+                }
+                return;
+            }
+
+            input.value = '';
+            
+            // Close any existing event source
+            if (eventSource) {
+                eventSource.close();
+            }
+
+            // Start streaming
+            const params = new URLSearchParams({ message });
+            eventSource = new EventSource(`http://localhost:3001/api/chat/stream/${currentSessionId}?${params}`);
+            
+            let assistantMessage = null;
+            
+            eventSource.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                
+                switch (data.type) {
+                    case 'user_message':
+                        addMessageToChat(data.data);
+                        break;
+                    case 'assistant_start':
+                        assistantMessage = data.data;
+                        addMessageToChat(assistantMessage);
+                        break;
+                    case 'assistant_chunk':
+                        if (assistantMessage) {
+                            updateLastMessage(data.data.content);
+                        }
+                        break;
+                    case 'complete':
+                        console.log('Chat complete:', data.data);
+                        eventSource.close();
+                        eventSource = null;
+                        break;
+                    case 'error':
+                        console.error('Chat error:', data.data);
+                        alert('Error: ' + data.data);
+                        eventSource.close();
+                        eventSource = null;
+                        break;
+                }
+            };
+
+            eventSource.onerror = function(error) {
+                console.error('EventSource error:', error);
+                eventSource.close();
+                eventSource = null;
+            };
+        }
+
+        function addMessageToChat(message) {
+            const chatContainer = document.getElementById('chatContainer');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${message.role}`;
+            messageDiv.innerHTML = `<strong>${message.role}:</strong> <span class="content">${message.content}</span>`;
+            messageDiv.id = `msg-${message.id}`;
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function updateLastMessage(content) {
+            const chatContainer = document.getElementById('chatContainer');
+            const lastMessage = chatContainer.lastElementChild;
+            if (lastMessage) {
+                const contentSpan = lastMessage.querySelector('.content');
+                if (contentSpan) {
+                    contentSpan.textContent = content;
+                }
+            }
+        }
+
+        // Load sessions when page loads
+        loadSessions();
+    </script>
+</body>
+</html>
