@@ -1,6 +1,5 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { getCurrentWindow } from '@tauri-apps/api/window';
 
 interface SettingsStore {
   excludeFolders: string[];
@@ -66,10 +65,10 @@ export const useSettingsStore = create<SettingsStore>()(
         })),
       setWindowTitle: (title: string) => {
         set({ windowTitle: title });
-        (async () => {
-          const win = getCurrentWindow();
-          await win.setTitle(title);
-        })();
+        // Window title setting not available in web version
+        if (typeof document !== 'undefined') {
+          document.title = title;
+        }
       },
     }),
     {

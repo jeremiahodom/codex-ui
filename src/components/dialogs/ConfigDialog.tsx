@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { open } from '@tauri-apps/plugin-dialog';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Settings, FileText } from 'lucide-react';
@@ -30,17 +29,10 @@ export const ConfigDialog: React.FC<ConfigDialogProps> = ({
   });
 
   const handleSelectCodexExecutable = async () => {
-    try {
-      const result = await open({
-        multiple: false,
-        directory: false
-      });
-      if (result) {
-        setLocalConfig(prev => ({ ...prev, codexPath: result }));
-      }
-    } catch (error) {
-      console.error('Failed to select codex executable:', error);
-      alert('Failed to select codex executable: ' + error);
+    // File selection not available in web version
+    const path = prompt('Enter codex executable path:');
+    if (path) {
+      setLocalConfig(prev => ({ ...prev, codexPath: path }));
     }
   };
 
